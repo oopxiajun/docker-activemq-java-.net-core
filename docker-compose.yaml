@@ -12,6 +12,12 @@ services:
       - "1883:1883"
       - "61614:61614"
     image: activemq-test:v1
+    #开机就要启动（请确保docker服务是否设置为开机启动）
+    restart: always
+    #将数据和日志挂载出来，以防容器重启后数据丢失
+    volumes: 
+      - "/data/activemq:/data/activemq"
+      - "/var/log/activemq:/var/log/activemq"
 
   ## 最简单，无需任何配置，请使用这个下面配置 来启动容器
   # version: '2'
@@ -25,5 +31,10 @@ services:
   #         - "1883:1883"
   #         - "61614:61614"
   #       image:  webcenter/activemq:latest
+  ##开机就要启动（请确保docker服务是否设置为开机启动）
+  #       restart: always
+  #       volumes: 
+  #         - "/data/activemq:/data/activemq"
+  #         - "/var/log/activemq:/var/log/activemq"
     
     
