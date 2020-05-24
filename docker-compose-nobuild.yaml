@@ -1,0 +1,15 @@
+version: '2' #最简单，无需任何配置，请使用这个下面配置来启动容器
+services:
+  activemq-test:
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"
+      - "61613:61613"
+      - "1883:1883"
+      - "61614:61614"
+    image: webcenter/activemq:latest 
+    restart: always #开机就要启动（请确保docker服务是否设置为开机启动）
+    volumes:
+      - "/data/activemq:/data/activemq"
+      - "/var/log/activemq:/var/log/activemq"

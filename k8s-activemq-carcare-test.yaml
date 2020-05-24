@@ -1,0 +1,104 @@
+#部署
+---
+apiVersion: apps/v1
+kind: Deployment                            #对应的类型(可以有Pod、Server、Deployment)
+metadata:                                   #原数据类型
+  name: activemq-carcare                    #名称（自定义）
+  namespace: default                        #空间名称    
+  labels:
+    name: activemq-carcare 
+spec:                                       #细则
+  replicas: 1                               #镜像副本数量（可以有多少个pod） 
+  selector: 
+    matchLabels:
+      app: activemq-carcare
+  template:  
+    metadata:
+      labels:
+        app: activemq-carcare               #模版
+    spec:                                   #模版细则
+      containers:                           #容器列表        
+        - name: activemq-carcare            #镜像名称
+          image: webcenter/activemq:latest  #所需镜像
+          ports:                            #端口列表
+            - containerPort: 8161           #activemq 网页管理端端口  http访问          
+            - containerPort: 61616          #tcp用于客户端连接时使用的端口
+          #restart: always                   #容器重启方式
+          volumeMounts:                     #挂载数据卷（数据文件和日志文件）
+            - mountPath: /data/activemq     #容器内路径
+              name: data                    # 要与 volume 中 name 匹配
+            - mountPath: /var/log/activemq  #容器内路径
+              name: log                     # 要与 volume 中 name 匹配
+      volumes:
+        - name: data
+          hostPath:
+            path: /data/activemq     # 使用 pod 所在节点的路径
+        - name: log
+          hostPath:
+            path: /var/log/activemq     # 使用 pod 所在节点的路径
+ 
+#服务
+---
+apiVersion: v1  #版本
+kind: Service    #服务
+metadata:
+  name: activemq-carcare-server                    #名称（自定义）
+  #namespace: default                        #空间名称
+  labels:
+    name: activemq-carcare 
+spec:
+  #nodeName: master.oopxiajun.com #192.168.134.139
+  ports:        #服务需要公布的端口
+    - name: admin
+      port: 8161        #服务对外的可以访问的端口
+      targetPort: 8161  #容器暴露端口     
+      protocol: TCP     #HTTP访问 
+      nodePort: 8161    #节点端口
+    - name: tcp
+      port: 61616        #服务对外的可以访问的端口
+      targetPort: 61616  #容器端口   
+      protocol: TCP      #TCP访问   
+      nodePort: 61616    #节点端口
+  selector:
+    #name: activemq-carcare   
+    #run: activemq-carcare         
+    app: activemq-carcare #这里选择器一定要选择容器的标签，之前写name:activemq-carcare和run: activemq-carcare 都是错的。
+  #externalTrafficPolicy: Cluster
+  type: NodePort        #通信方式采用节点端口类型
+    
+# #入口
+# ---
+# apiVersion: extensions/v1beta1      
+# kind: Ingress
+# metadata:
+#   name: activemq-carcare
+#   namespace: default  
+#   labels:
+#     name: activemq-carcare 
+# spec:
+#   rules:
+#   - host: activemq-carcare-admin.k8s-ingress.com
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: activemq-carcare
+#           servicePort: 30000
+  
+#   - host: activemq-carcare-server.k8s-ingress.com
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: activemq-carcare
+#           servicePort: 30001
+
+
+# kubectl get svc
+# NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                          AGE
+# activemq-carcare   NodePort    10.110.27.46     <none>        8161:10431/TCP,61616:36790/TCP   46s
+# kubernetes         ClusterIP   10.96.0.1        <none>        443/TCP                          41d
+# my-test-ngx        ClusterIP   10.98.25.92      <none>        80/TCP                           39d
+# myapp-test         ClusterIP   10.111.200.105   <none>        80/TCP                           39d
+
+ 
