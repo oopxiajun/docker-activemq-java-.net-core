@@ -3,23 +3,23 @@
 apiVersion: apps/v1
 kind: Deployment                            #对应的类型(可以有Pod、Server、Deployment)
 metadata:                                   #原数据类型
-  name: activemq-carcare                    #名称（自定义）
+  name: activemq-test                    #名称（自定义）
   namespace: default                        #空间名称    
   labels:
-    name: activemq-carcare 
+    name: activemq-test 
 spec:                                       #细则
   replicas: 1                               #镜像副本数量（可以有多少个pod） 
   selector: 
     matchLabels:
-      app: activemq-carcare
+      app: activemq-test
   template:  
     metadata:
       labels:
-        app: activemq-carcare               #模版
+        app: activemq-test               #模版
     spec:                                   #模版细则
       containers:                           #容器列表        
-        - name: activemq-carcare            #镜像名称
-          image: webcenter/activemq:latest  #所需镜像
+        - name: activemq-test            #镜像名称
+          image: webcenter/activemq:latest  #所需镜像(这里可以使用我们上面自己构建的镜像activemq-test:v1)
           ports:                            #端口列表
             - containerPort: 8161           #activemq 网页管理端端口  http访问          
             - containerPort: 61616          #tcp用于客户端连接时使用的端口
@@ -42,10 +42,10 @@ spec:                                       #细则
 apiVersion: v1  #版本
 kind: Service    #服务
 metadata:
-  name: activemq-carcare-server                    #名称（自定义）
-  #namespace: default                        #空间名称
+  name: activemq-test-server                    #名称（自定义）
+  #namespace: default                        #名称空间
   labels:
-    name: activemq-carcare 
+    name: activemq-test 
 spec:
   #nodeName: master.oopxiajun.com #192.168.134.139
   ports:        #服务需要公布的端口
@@ -60,9 +60,9 @@ spec:
       protocol: TCP      #TCP访问   
       nodePort: 61616    #节点端口
   selector:
-    #name: activemq-carcare   
-    #run: activemq-carcare         
-    app: activemq-carcare #这里选择器一定要选择容器的标签，之前写name:activemq-carcare和run: activemq-carcare 都是错的。
+    #name: activemq-test   
+    #run: activemq-test         
+    app: activemq-test #这里选择器一定要选择容器的标签，之前写name:activemq-test和run: activemq-test 都是错的。
   #externalTrafficPolicy: Cluster
   type: NodePort        #通信方式采用节点端口类型
     
@@ -71,32 +71,32 @@ spec:
 # apiVersion: extensions/v1beta1      
 # kind: Ingress
 # metadata:
-#   name: activemq-carcare
+#   name: activemq-test
 #   namespace: default  
 #   labels:
-#     name: activemq-carcare 
+#     name: activemq-test 
 # spec:
 #   rules:
-#   - host: activemq-carcare-admin.k8s-ingress.com
+#   - host: activemq-test-admin.k8s-ingress.com
 #     http:
 #       paths:
 #       - path: /
 #         backend:
-#           serviceName: activemq-carcare
+#           serviceName: activemq-test
 #           servicePort: 30000
   
-#   - host: activemq-carcare-server.k8s-ingress.com
+#   - host: activemq-test-server.k8s-ingress.com
 #     http:
 #       paths:
 #       - path: /
 #         backend:
-#           serviceName: activemq-carcare
+#           serviceName: activemq-test
 #           servicePort: 30001
 
 
 # kubectl get svc
 # NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                          AGE
-# activemq-carcare   NodePort    10.110.27.46     <none>        8161:10431/TCP,61616:36790/TCP   46s
+# activemq-test   NodePort    10.110.27.46     <none>        8161:10431/TCP,61616:36790/TCP   46s
 # kubernetes         ClusterIP   10.96.0.1        <none>        443/TCP                          41d
 # my-test-ngx        ClusterIP   10.98.25.92      <none>        80/TCP                           39d
 # myapp-test         ClusterIP   10.111.200.105   <none>        80/TCP                           39d
